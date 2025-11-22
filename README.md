@@ -4,12 +4,12 @@ A web application for batch processing free-text radiology reports and structuri
 
 ## Overview
 
-This application enables efficient batch processing of radiology reports, transforming unstructured free-text into standardized, structured data. It combines a modern React frontend with a Python FastAPI backend, powered by AI for intelligent text extraction.
+This application enables efficient batch processing of radiology reports, transforming unstructured free-text into standardized, structured data. It combines a modern React frontend with a Python FastAPI backend, powered by a LLM for intelligent text extraction.
 
 ## Features
 
 - **Batch Upload**: Upload multiple radiology reports at once
-- **AI-Powered Extraction**: Automatically structure reports using Claude API
+- **LLM-Powered Extraction**: Automatically structure reports using your choice of LLM from OpenAI, Claude, or Ollama.
 - **Pre-built Templates**: Ready-to-use templates for common radiology exams
 - **Custom Template Designer**: Create templates tailored to your specific needs
 - **Export Structured Data**: Access and export structured report data
@@ -33,12 +33,6 @@ This application enables efficient batch processing of radiology reports, transf
 - Redis for task queue management
 - Celery for asynchronous task processing
 - SQLAlchemy ORM
-- Anthropic Claude API for AI processing
-
-## Prerequisites
-
-- Docker & Docker Compose installed
-- Anthropic API key ([get one here](https://console.anthropic.com/))
 
 ## Quick Start
 
@@ -48,11 +42,7 @@ This application enables efficient batch processing of radiology reports, transf
    ```bash
    make setup
    ```
-   This creates your `.env` file. Edit it and add your `ANTHROPIC_API_KEY`:
-   ```env
-   ANTHROPIC_API_KEY=your_api_key_here
-   SECRET_KEY=change-this-to-a-random-string
-   ```
+   This creates your `.env` file. Edit it and add either your `ANTHROPIC_API_KEY`, `OPENAI_API_KEY` or use the Ollama configuration.
 
 2. **Start the application**
    ```bash
