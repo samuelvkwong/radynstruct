@@ -35,6 +35,7 @@ dist/
 *.swo
 *~
 .DS_Store
+.claude
 
 # Docker
 *.log
