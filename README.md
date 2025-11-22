@@ -1,4 +1,4 @@
-# Radiology Report Dynamic Structuring Application
+# Radiology Report Structuring Application
 
 A web application for batch processing free-text radiology reports and structuring them according to customizable templates using AI.
 
