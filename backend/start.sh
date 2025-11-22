@@ -5,7 +5,7 @@ echo "🔄 Starting backend service..."
 
 # Wait for database to be ready (additional safety beyond docker healthcheck)
 echo "⏳ Waiting for database connection..."
-python -c "
+uv run python -c "
 import time
 from app.core.database import engine
 from sqlalchemy import text
@@ -30,7 +30,7 @@ while retry_count < max_retries:
 
 # Run database migrations (create tables)
 echo "📊 Creating database tables..."
-python -c "
+uv run python -c "
 from app.core.database import Base, engine
 Base.metadata.create_all(bind=engine)
 print('✅ Database tables ready')
@@ -38,7 +38,7 @@ print('✅ Database tables ready')
 
 # Seed the database with default templates
 echo "🌱 Seeding database with default templates..."
-python seed_db.py
+uv run python seed_db.py
 
 # Start the application
 echo "🚀 Starting FastAPI server..."
@@ -46,4 +46,4 @@ echo "📡 API will be available at http://localhost:8000"
 echo "📚 API docs at http://localhost:8000/docs"
 echo ""
 
-exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+exec uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload

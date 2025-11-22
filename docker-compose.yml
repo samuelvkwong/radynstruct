@@ -40,6 +40,7 @@ services:
       ENVIRONMENT: development
     volumes:
       - ./backend:/app
+      - /app/.venv
       - uploads:/app/uploads
     depends_on:
       postgres:
@@ -64,6 +65,7 @@ services:
       ENVIRONMENT: development
     volumes:
       - ./backend:/app
+      - /app/.venv
       - uploads:/app/uploads
     depends_on:
       postgres:
@@ -72,9 +74,9 @@ services:
         condition: service_healthy
       backend:
         condition: service_started
-    command: celery -A app.celery_worker worker --loglevel=info
+    command: uv run celery -A app.celery_worker worker --loglevel=info
     healthcheck:
-      test: ["CMD-SHELL", "celery -A app.celery_worker inspect ping -d celery@$$HOSTNAME"]
+      test: ["CMD-SHELL", "uv run celery -A app.celery_worker inspect ping -d celery@$$HOSTNAME"]
       interval: 30s
       timeout: 10s
       retries: 3
