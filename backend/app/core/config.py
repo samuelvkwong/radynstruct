@@ -23,11 +23,10 @@ class Settings(BaseSettings):
     AI_PROVIDER: Optional[str] = None  # "anthropic", "openai", or "ollama" (auto-detect if None)
     ANTHROPIC_API_KEY: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
-    AI_MODEL: str = "claude-sonnet-4-20250514"  # or "gpt-4-turbo-preview" or "llama3"
+    AI_MODEL: str = "claude-sonnet-4-20250514"  # Model name for all providers
 
     # Ollama settings
     OLLAMA_BASE_URL: str = "http://localhost:11434"
-    OLLAMA_MODEL: str = "llama3"
     
     # File Upload
     MAX_UPLOAD_SIZE: int = 52428800  # 50MB in bytes

@@ -1,6 +1,5 @@
 from typing import Dict, Any, Optional, Type
 import json
-import httpx
 from anthropic import Anthropic
 from openai import OpenAI
 from pydantic import BaseModel, Field, create_model
@@ -19,8 +18,11 @@ class AIService:
         elif self.provider == "openai":
             self.openai_client = OpenAI(api_key=settings.OPENAI_API_KEY)
         elif self.provider == "ollama":
-            # Ollama doesn't need a client, we'll use httpx directly
-            pass
+            # Ollama supports OpenAI-compatible API - reuse OpenAI client
+            self.openai_client = OpenAI(
+                base_url=f"{settings.OLLAMA_BASE_URL}/v1",
+                api_key="ollama"  # Dummy key, Ollama doesn't require authentication
+            )
         else:
             raise ValueError("No AI provider configured")
 
@@ -106,10 +108,9 @@ class AIService:
         try:
             if self.provider == "anthropic":
                 return await self._call_anthropic(prompt, response_model)
-            elif self.provider == "openai":
+            elif self.provider in ["openai", "ollama"]:
+                # Both OpenAI and Ollama use the same client (OpenAI-compatible API)
                 return await self._call_openai(prompt, response_model)
-            elif self.provider == "ollama":
-                return await self._call_ollama(prompt, response_model)
             else:
                 raise ValueError(f"Unsupported AI provider: {self.provider}")
         except Exception as e:
@@ -171,7 +172,8 @@ RESPONSE (JSON only):"""
         raise Exception("No structured data returned from Anthropic")
 
     async def _call_openai(self, prompt: str, response_model: Type[BaseModel]) -> Dict[str, Any]:
-        """Call OpenAI's GPT API with structured outputs using Pydantic model"""
+        """Call OpenAI API (or Ollama with OpenAI-compatible API) with structured outputs"""
+
         # Use OpenAI's beta parse() method for structured outputs
         completion = self.openai_client.beta.chat.completions.parse(
             model=settings.AI_MODEL,
@@ -193,53 +195,7 @@ RESPONSE (JSON only):"""
                 "confidence_score": 85
             }
 
-        raise Exception("No structured data returned from OpenAI")
-
-    async def _call_ollama(self, prompt: str, response_model: Type[BaseModel]) -> Dict[str, Any]:
-        """Call local Ollama API with JSON mode"""
-        # Add JSON schema to prompt for guidance
-        schema = response_model.model_json_schema()
-        enhanced_prompt = f"""{prompt}
-
-You must respond with a valid JSON object that matches this exact schema:
-{json.dumps(schema, indent=2)}
-
-Respond only with the JSON object, no other text."""
-
-        async with httpx.AsyncClient() as client:
-            try:
-                response = await client.post(
-                    f"{settings.OLLAMA_BASE_URL}/api/generate",
-                    json={
-                        "model": settings.OLLAMA_MODEL,
-                        "prompt": enhanced_prompt,
-                        "stream": False,
-                        "format": "json",  # Enable JSON mode
-                        "options": {
-                            "temperature": 0.1
-                        }
-                    },
-                    timeout=60.0
-                )
-                response.raise_for_status()
-                result = response.json()
-                response_text = result.get("response", "").strip()
-
-                # Parse and validate against the Pydantic model
-                try:
-                    parsed_data = json.loads(response_text)
-                    # Validate with Pydantic model
-                    validated = response_model(**parsed_data)
-                    return {
-                        "structured_data": validated.model_dump(exclude_none=False),
-                        "confidence_score": 85
-                    }
-                except (json.JSONDecodeError, Exception) as e:
-                    # Fallback to basic parsing if validation fails
-                    return self._parse_response(response_text)
-
-            except httpx.HTTPError as e:
-                raise Exception(f"Ollama API error: {str(e)}")
+        raise Exception(f"No structured data returned from {self.provider}")
 
     def _parse_response(self, response_text: str) -> Dict[str, Any]:
         """Parse AI response and extract JSON"""
