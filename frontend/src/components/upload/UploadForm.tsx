@@ -21,10 +21,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ templates, onUploadComplete }) 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'text/plain': ['.txt'],
-      'application/pdf': ['.pdf'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+      'application/json': ['.json'],
     },
   });
 
@@ -112,12 +109,15 @@ const UploadForm: React.FC<UploadFormProps> = ({ templates, onUploadComplete }) 
             <input {...getInputProps()} />
             <div className="text-gray-600">
               {isDragActive ? (
-                <p>Drop the files here...</p>
+                <p>Drop the JSON file here...</p>
               ) : (
                 <>
-                  <p className="mb-2">Drag & drop files here, or click to select</p>
+                  <p className="mb-2">Drag & drop JSON file here, or click to select</p>
                   <p className="text-sm text-gray-500">
-                    Supported formats: .txt, .pdf, .doc, .docx
+                    Format: JSON array of report texts
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Example: ["report 1 text...", "report 2 text...", ...]
                   </p>
                 </>
               )}

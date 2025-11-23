@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     # File Upload
     MAX_UPLOAD_SIZE: int = 52428800  # 50MB in bytes
     UPLOAD_DIR: str = "./uploads"
-    ALLOWED_EXTENSIONS: set = {".txt", ".pdf", ".doc", ".docx"}
+    ALLOWED_EXTENSIONS: set = {".json"}  # JSON files with array of report texts
     
     # CORS
     ALLOWED_ORIGINS: str = "http://localhost:3000"
